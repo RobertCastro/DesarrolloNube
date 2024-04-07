@@ -10,7 +10,7 @@ services:
     #TODO: agregar servicios de los que depende
 
   backend:
-    image: python:3.8-slim
+    image: python:3.10
     volumes:
        - ./src/backend:/app
     working_dir: /app
