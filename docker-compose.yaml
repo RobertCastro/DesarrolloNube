@@ -1,4 +1,8 @@
-version: "3.2"
+version: "3.8"
+
+networks:
+  my-app-network:
+
 services:
   nginx:
     image: nginx:latest
@@ -10,16 +14,24 @@ services:
     #TODO: agregar servicios de los que depende
 
   backend:
-    image: python:3.10
-    volumes:
-       - ./src/backend:/app
-    working_dir: /app
-    command: flask run --host=0.0.0.0 --port=8000
+    build:
+      context: ./src/backend  # Ruta donde se encuentra el Dockerfile
+      dockerfile: Dockerfile  # Nombre del Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - FLASK_ENV=development
-      - FLASK_APP=app.py
+    networks:
+      - my-app-network
+
+    # image: python:3.10-slim
+    # volumes:
+    #    - ./src/backend:/app
+    # working_dir: /app
+    # command: flask run --host=0.0.0.0 --port=8000
+    # ports:
+    #   - "8000:8000"
+    # environment:
+    #   - FLASK_ENV=development
+    #   - FLASK_APP=app.py
     # depends_on:
     #   - database
   # broker:
