@@ -2,8 +2,10 @@ FROM python:3.10
 
 WORKDIR /usr/src/app
 
-COPY . .
+RUN python -m venv venv
+COPY requirements.txt /usr/src/app/
+RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . /usr/src/app
 
-CMD ["python", "app.py"]
+CMD ["venv/bin/python", "app.py"]
