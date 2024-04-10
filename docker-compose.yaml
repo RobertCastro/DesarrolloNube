@@ -21,6 +21,9 @@ services:
       dockerfile: Dockerfile  # Nombre del Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - uploads_videos:/src/backend/uploads
+      - root_backend:/src/backend
     networks:
       - dev-cloud-network
   broker_video:
@@ -60,6 +63,8 @@ volumes:
   pg-data:
     driver: local
   broker_video_data:
+  uploads_videos:
+  root_backend:
   #definicion volume videos
   #videos_sin_editar:
   #- src/uploads/videos_sin_editar
