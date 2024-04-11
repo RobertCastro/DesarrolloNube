@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS tasks (
     id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(255) NOT NULL
+    status VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 ); 
+
+INSERT INTO users (username, password1, email) VALUES ('user', '123', 'user@user.com');

@@ -1,3 +1,5 @@
+#docker-compose down --rmi all
+#docker-compose up -d
 version: "3.8"
 
 networks:
@@ -17,13 +19,10 @@ services:
   backend:
     container_name: backend
     build:
-      context: ./src/backend  # Ruta donde se encuentra el Dockerfile
-      dockerfile: Dockerfile  # Nombre del Dockerfile
+      context: ./src/backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    volumes:
-      - uploads_videos:/src/backend/uploads
-      - root_backend:/src/backend
     networks:
       - dev-cloud-network
   broker_video:
@@ -49,6 +48,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - ${PWD}/src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ${PWD}/src/database/postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
@@ -56,17 +56,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # worker:
-  #TODO: agregar servicio de worker
-
+  worker_video:
+    container_name: worker_video
+    build:
+      context: ./src/worker/worker_video  # Ruta donde se encuentra el Dockerfile
+      dockerfile: Dockerfile  # Nombre del Dockerfile
+    environment:
+        AMQP_URL: 'amqp://broker_video?connection_attempts=10&retry_delay=10'
+    depends_on:
+      - broker_video  
+    networks:
+      - dev-cloud-network
+    volumes:
+      - videos_sin_editar:/src/uploads/videos_sin_editar
+      - videos_editados:/src/uploads/videos_editados
+      - ./resources/tests/videos:/src/uploads/videos_sin_editar
 volumes:
   pg-data:
     driver: local
   broker_video_data:
-  uploads_videos:
-  root_backend:
-  #definicion volume videos
-  #videos_sin_editar:
-  #- src/uploads/videos_sin_editar
-  #videos_editados:
-  #- src/uploads/videos_editados
+  videos_sin_editar: 
+  videos_editados:

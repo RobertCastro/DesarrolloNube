@@ -3,11 +3,11 @@ import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
-channel.queue_declare(queue='hello')
+channel.queue_declare(queue='task_queue',durable=True)
 
 channel.basic_publish(exchange='',
-                      routing_key='hello',
-                      body='Hello World!')
-print(" [x] Sent 'Hello World!'")
+                      routing_key='task_queue',
+                      body='video_test.mp4')
+print(" [x] Sent 'video_test.mp4'")
 
 connection.close()

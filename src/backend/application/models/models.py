@@ -7,7 +7,7 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
-    # tasks = db.relationship('Task', backref='user', lazy=True)
+    tasks = db.relationship('Task', backref='user', lazy=True)
 
 class Task(db.Model):
     __tablename__ = 'tasks'
@@ -15,4 +15,4 @@ class Task(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(255), nullable=False)
     # file_path = db.Column(db.String(255), nullable=False)
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
