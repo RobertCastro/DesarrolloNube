@@ -1,31 +1,24 @@
 from flask import Flask
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager
-from routes import routes
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from config import Config
 
-
-import logging
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# Inicializar la instancia de SQLAlchemy
 
 db = SQLAlchemy()
-jwt = JWTManager()
-
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:admin@localhost/idlr_db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = 'super-secreto'
+    app.config.from_object(config_class)
 
+    # Inicializar las extensiones con la aplicación Flask
     db.init_app(app)
-    CORS(app)
-    jwt.init_app(app)
-    routes(app)
-    
+    jwt = JWTManager(app)
+
+    from application.controllers.video_controller import video_blueprint
+    app.register_blueprint(video_blueprint, url_prefix='/api')
+
     return app
 
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+if __name__ == "__main__":
+    app = create_app()
+    app.run(debug=True)
