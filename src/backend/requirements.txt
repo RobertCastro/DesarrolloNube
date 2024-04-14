@@ -77,5 +77,4 @@ wcwidth==0.2.13
 webencodings==0.5.1
 Werkzeug==3.0.1
 yarg==0.1.9
-psycopg2-binary==2.9.3
-
+psycopg2-binary
