@@ -4,6 +4,9 @@ from application.models.models import db, Task
 import os
 from datetime import datetime
 import pika
+from flask_jwt_extended import jwt_required, get_jwt_identity
+import json
+from application.models.models import  User
 
 video_blueprint = Blueprint('video', __name__)
 
@@ -28,6 +31,7 @@ def enviar_tarea_worker_video(nombre_video):
     connection.close()
 
 @video_blueprint.route('/tasks', methods=['POST'])
+@jwt_required()
 def upload_video():
     if 'file' not in request.files:
         return jsonify({'message': 'No file part'}), 400
@@ -45,21 +49,30 @@ def upload_video():
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-    filepath = os.path.join(directory_path, filename)
-    file.save(filepath)
-    
-    user_id = 1
 
-    new_task = Task(user_id=user_id, status='uploaded', file_path=video_path)
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity).first()
+
+    new_task = Task(user_id=user.id, status='uploaded', file_path=video_path)
     db.session.add(new_task)
     db.session.commit()
 
-    enviar_tarea_worker_video(filepath)
+    id_task = new_task.id
+
+    filepath = os.path.join(directory_path, str(id_task) + "_" + filename)
+    file.save(filepath)
+
+    parametros_tarea_worker={"filepath":filepath,"id_task":id_task}
+    
+    parametros_tarea_worker_str = json.dumps(parametros_tarea_worker)
+
+    enviar_tarea_worker_video(parametros_tarea_worker_str)
 
     return jsonify({'message': f'Video {os.path.join(directory_path, filename)} uploaded', 'task_id': new_task.id}), 201
 
 
 @video_blueprint.route('/tasks', methods=['GET'])
+@jwt_required()
 def get_tasks():
     """
     Permite recuperar todas las tareas de edición de un usuario autorizado en la aplicación.
@@ -70,9 +83,11 @@ def get_tasks():
     max = request.args.get('max', default=None)
     order = request.args.get('order', default=None)
 
-    user_id = 1
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity).first()
+    print(f"USER ID IS {user.id}")
 
-    tasks = Task.query.filter_by(user_id=user_id)
+    tasks = Task.query.filter_by(user_id=user.id)
 
     if order == '0':
         tasks = tasks.order_by(Task.id.asc())
@@ -90,19 +105,25 @@ def get_tasks():
     return jsonify({'data': tasks_list}), 200
 
 @video_blueprint.route('/tasks/<int:task_id>', methods=['GET'])
+@jwt_required()
 def get_task(task_id):
     task = Task.query.get(task_id)
     if task is None:
         return jsonify({'message': 'Task not found'}), 404
+    if task.status == "processed":
+        file_path = f"/usr/src/app/uploads/videos_editados/{task.file_path}"
+    else:
+        file_path = ""
     return jsonify({
         'task_id': task.id,
         'timestamp': task.timestamp,
         'status': task.status,
-        'file_path': task.file_path
+        'file_path': file_path
     })
 
 
 @video_blueprint.route('/tasks/<int:task_id>', methods=['DELETE'])
+@jwt_required()
 def delete_task(task_id):
     task = Task.query.get(task_id)
     if task is None:
