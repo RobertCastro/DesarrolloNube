@@ -1,33 +1,10 @@
 # MISW-DesarrolloNube
-Repositorio Desarrollo de Software en la nube - MISW 4204
+Repositorio Desarrollo de Software en la nube - MISW 4204 del equipo 5 conformado por:
 
-## Stack tecnológico
-
-1. Python 3.10 o superior.
-2. Flask Framework: Micro framework web.
-3. Flask SQLAlchemy: Una extensión de Flask que agrega soporte para el ORM SQLAlchemy, un 
-mapeador relacional de objetos que simplifica la interacción con una base de datos SQL.
-4. Flask RESTful: Una extensión de Flask para desarrollar API REST con un patrón de diseño 
-orientado a objetos.
-5. Flask Marshmallow: Una extensión de Flask que se integra con Marshmallow, una biblioteca de 
-Python para la serialización de objetos.
-6. Celery: Es una biblioteca de Python para gestionar colas de tareas distribuidas, es decir, nos 
-permite trabajar con diferentes tareas y distribuirlas en procesos. 
-7. Redis o RabbitMQ: Servicios de mensajería que actúan como intermediarios; los brokers 
-enrutan, agregan y permiten crear servicios de publicación/subscripción, comúnmente 
-llamados servicios pub/sub.
-8. Kafka: Si es de su preferencia puede reemplazar Celery por Kafka. Es importante resaltar que 
-esta decisión impacta la arquitectura de solución, pasando de un sistema de cola de mensajes y 
-workers a una arquitectura Pub/Sub.
-9. Flask JWT Extended: Agrega soporte en el uso de JSON Web Tokens (JWT) a Flask para proteger 
-las vistas, la actualización de tokens, entre otras funciones. 
-10. Werkzeug: Biblioteca completa de aplicaciones web WSGI. 
-11. PostgreSQL: Motor Open Source de base de datos SQL.
-12. Gunicorn: Servidor HTTP WSGI para Python y ambientes Unix. 
-13. Nginx: Servidor web HTTP de código abierto. Ofrece servicios como proxy inverso, balanceador 
-de carga HTTP y proxy de correo electrónico para IMAP, POP3 y SMTP. Se utiliza en conjunto 
-con Gunicorn para desplegar en producción aplicaciones web en Flask. 
-
+* Maria del Mar Alas Escalante
+* Jhon Puentes
+* Robert Castro
+* Daniel Gamez
 
 ## Estructura de carpetas
 
@@ -40,7 +17,7 @@ con Gunicorn para desplegar en producción aplicaciones web en Flask.
 
 ## Instrucciones de ejecución.
 
-### Clonar el repostorio
+### Clonar el repositorio
 Para clonar el repositorio:
 
 1. Abra una terminal en un directorio de su preferencia.
@@ -50,7 +27,7 @@ git clone https://github.com/soyrobert/MISW-DesarrolloNube.git
 ```
 
 ### Ejecutar toda la plataforma:
-Para ejecutar toda la plataforma, ubiquese en la raiz del proyecto/repositorio y ejecute los siguientes:
+La aplicación está principalmente diseñada para correr en Docker por lo que debe tener instalada esta herramienta en su equipo. Para ejecutar toda la plataforma, corra Docker en el aplicativo de escritorio o en la línea de comandos. Una vez Docker esté corriendo ubiquese en la raiz del proyecto/repositorio donde se encuentra el archivo "docker-compose.yaml" y ejecute los siguientes comandos:
 
 ```bash
 docker-compose down --rmi all
@@ -59,7 +36,19 @@ docker-compose down --rmi all
 ```bash
 docker-compose up -d
 ```
-Lo anterior, levantará todos los servicios (_Backend API, BD, Cola de mensajeria, Workers_) necesarios para empezar a consumnirlos.
+Lo anterior, levantará todos los servicios (_Backend API, BD, Cola de mensajeria, Workers_) necesarios para empezar a consumnirlos. Por ejemplo en el aplicativo de escritorio en windows se ve de la siguiente forma una vez corre:
+
+![image](https://github.com/soyrobert/MISW-DesarrolloNube/assets/17055234/82049003-d766-45bf-ad71-224d4849647c)
+
+Si necesita por alguna razon volver a correr la plataforma. Lo recomendado es borrar los contenidos de la carpeta "postgres-data" en la carpeta database y volver a correr los comandos:
+
+```bash
+docker-compose down --rmi all
+```
+
+```bash
+docker-compose up -d
+```
 
 ### Ejecutar y monitorear contenedores individuales
 
@@ -82,7 +71,36 @@ Para levantar el servicio de BD, siga las instruicciones ubicadas en el readme:
 src/database/README.md
 ```
 
+Si desea conectarse a la BD para realizar consultas directamente lo puede hacer con los siguientes comandos:
+
+Conectarse al contenedor donde corre la BD con dockder exec
+```bash
+docker exec -it idlr_db bash
+```
+
+Una vez dentro del container conectarse a la BD
+```bash
+psql -U admin -d idlr_db
+```
+
+Realizar las consultas necesarias, por ejemplo ver la tabla de tasks
+```bash
+idlr_db=# select * from tasks;
+ id | user_id |         file_path         |         timestamp          |  status
+----+---------+---------------------------+----------------------------+-----------
+  1 |       2 | 2024/04/14/videotest2.mp4 | 2024-04-14 01:37:00.114754 | processed
+  2 |       2 | 2024/04/14/videotest2.mp4 | 2024-04-14 01:38:58.510803 | processed
+  3 |       2 | 2024/04/14/videotest2.mp4 | 2024-04-14 01:43:35.416322 | processed
+  4 |       2 | 2024/04/14/videotest2.mp4 | 2024-04-14 01:44:29.038956 | processed
+```
+
 ### Consumir servicios
+
+El consumo de servicios se encuntra documentado en postman:
+* [Documentacion Postman](https://documenter.getpostman.com/view/1812580/2sA3Bj7tn4) 
+* [Espacio Trabajo Postman](https://www.postman.com/bold-star-394127/workspace/2024-2-ing-soft-nube)
+
+igualmente a continuación los explicamos.
 
 #### Registro
 Para registrarse como usuario, importe el siguiente request (Curl) en su cliente HTTP preferido:
